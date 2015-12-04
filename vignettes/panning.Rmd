@@ -1,0 +1,13 @@
+---
+title: "An implementation of the Panning Algorithm"
+author: "Samuel Orso"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{An implementation of the Panning Algorithm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This document illustrates how to use the panning package as a feature selection 
+method. More to come soon...

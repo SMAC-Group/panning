@@ -1,0 +1,24 @@
+Package: panning
+Type: Package
+Title: An implementation of the Panning Algorithm
+Version: 0.1
+Date: 2015-12-02
+Authors@R: person("Orso", "Samuel", email = "Samuel.Orso@unige.ch",
+        role = c("aut", "cre"))
+Maintainer: Samuel Orso <Samuel.Orso@unige.ch>
+Description: Functions to run the Panning Algorithm in R.
+License: GPL-2
+LazyData: FALSE
+Imports:
+    doParallel,
+    doRNG,
+    foreach,
+    nnet,
+    parallel,
+    stats,
+Depends:
+    R (>= 3.2.2)
+RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
