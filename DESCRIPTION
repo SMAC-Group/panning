@@ -22,3 +22,5 @@ RoxygenNote: 5.0.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: http://github.com/SMAC-Group/panning
+BugReports: http://github.com/SMAC-Group/panning/issues
