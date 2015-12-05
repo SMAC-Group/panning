@@ -1,10 +1,13 @@
 Package: panning
 Type: Package
 Title: An implementation of the Panning Algorithm
-Version: 0.1
+Version: 0.1.0
 Date: 2015-12-02
-Authors@R: person("Orso", "Samuel", email = "Samuel.Orso@unige.ch",
-        role = c("aut", "cre"))
+Authors@R: c(person("Orso", "Samuel", email = "Samuel.Orso@unige.ch",
+        role = c("aut", "cre")),
+             person("Molinari","Roberto", email = "roberto.molinari@unige.ch", role=c('aut','ctb')),
+             person("Guerrier","Stephane", email = "stephane@illinois.edu", role=c('ctb','cph')),
+             person("Balamuta","James", email = "roberto.molinari@unige.ch", role=c('ctb')))
 Maintainer: Samuel Orso <Samuel.Orso@unige.ch>
 Description: Functions to run the Panning Algorithm in R.
 License: GPL-2
@@ -16,6 +19,7 @@ Imports:
     nnet,
     parallel,
     stats,
+    MASS
 Depends:
     R (>= 3.2.2)
 RoxygenNote: 5.0.1

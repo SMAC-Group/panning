@@ -41,11 +41,11 @@ are deleted. \code{Sds} may contain duplicates.
 }
 \details{
 This function computes exhaustively the m-fold Cross-validation (CV) prediction error
-for all the \eqn{\binom{p}{d}} possible models of size \code{d} by calling
+for all the \eqn{\left( {\begin{array}{*{20}{c}} p \\ d \end{array}} \right)}{C(p,d)} possible models of size \code{d} by calling
 the \code{\link[panning]{CVmFold}} function. If \code{B=NULL} (default), then
-\code{B} is set to be equal to \eqn{\binom{p}{d}}.
+\code{B} is set to be equal to \eqn{\left( {\begin{array}{*{20}{c}} p \\ d \end{array}} \right)}{C(p,d)}.
 
-If \code{B} takes a positive integer value smaller than the total number of models \eqn{\binom{p}{d}},
+If \code{B} takes a positive integer value smaller than the total number of models \eqn{\left( {\begin{array}{*{20}{c}} p \\ d \end{array}} \right)}{C(p,d)},
 then the function computes the CV prediction errors for \code{B} models of size \code{d} randomly selected.
 In this case, it is possible to set the \code{seed} for reproducibility.
 
@@ -54,6 +54,7 @@ At this stage, the algorithm does not allow for interaction terms among variable
 This function is computationnaly time consuming proportionally to the size of \code{B}.
 }
 \examples{
+\dontrun{
 #####
 # Simulate a logistic regression
 n <- 50
@@ -70,8 +71,8 @@ IStep <- InitialStep(y = y, X = X, family = binomial(link = "logit"), type = "re
 
 # Run the parallelised version (4 cores)
 IStep <- InitialStep(y = y, X = X, family = binomial(link = "logit"), type = "response",
-                     divergence = "classification", proc = 4, trace = FALSE)
-
+                     divergence = "classification", proc = 2, trace = FALSE)
+}
 }
 \author{
 Samuel Orso \email{Samuel.Orso@unige.ch}

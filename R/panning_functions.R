@@ -1,11 +1,3 @@
-# # Packages
-# require( nnet )
-# require( doParallel )
-# require( doRNG )
-
-# Functions
-# m-fold-cross-validation
-
 #' m-fold Cross-validation for Generalised Linear Models and specific divergence
 #'
 #' \code{CVmFold} returns the m-fold Cross-validation prediction error of different divergences
@@ -51,6 +43,7 @@
 #' \code{\link[panning]{InitialStep}}, \code{\link[panning]{GeneralStep}}
 #'
 #' @examples
+#' \dontrun{
 #' ### Binary data
 #' # load the data
 #' library(MASS)
@@ -107,8 +100,10 @@
 #' set.seed(123)
 #' CVmFold(y = counts, X = cbind(outcome, treatment), m = 3, K = 30, family = poisson(),
 #'      divergence = "L1" )
-#'
+#' }
 #' @importFrom nnet multinom
+#' @importFrom stats glm
+#' @import MASS
 #' @export
 CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 = 0.5, W = NULL,
                     increasing = FALSE, trace = TRUE, ... ){
@@ -116,14 +111,14 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
         n <- length(y)          # number of observations
         nc <- ceiling(n/m)      # number of columns for m-fold-CV, m is number of rows
         ne <- nc*m - n          # number of extra observations needed for full matrix in m-fold-CV
-        pred.error <- matrix(nr=m,nc=K) # matrix of prediction errors
+        pred.error <- matrix(nrow=m,ncol=K) # matrix of prediction errors
         imX <- is.matrix(X)
 
         # m-fold-cross-validation:
         for ( j in seq_len(K) ){
                 # Construction of a matrix of splits for m-fold-CV:
-                if( ne == 0) rs <- matrix(sample.int( n, replace = FALSE ), nr=m, nc=nc) else
-                        rs <- matrix(c(sample.int( n, replace = FALSE ), rep(NA,ne)), nr=m, nc=nc)
+                if( ne == 0) rs <- matrix(sample.int( n, replace = FALSE ), nrow=m, ncol=nc) else
+                        rs <- matrix(c(sample.int( n, replace = FALSE ), rep(NA,ne)), nrow=m, ncol=nc)
 
                 for ( i in seq_len(m) ) {
                         # Seperating training and test datasets
@@ -170,7 +165,7 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
                                         y.all <- c(y.hat, y.cv.test)
                                         nf <- length(unique(y.all))
                                         y.all <- as.integer(factor(y.all, labels = seq_len(nf)))
-                                        pred.error[i,j] <- sum(W[matrix(y.all,nc=2)])
+                                        pred.error[i,j] <- sum(W[matrix(y.all,ncol=2)])
                                 }
                         }
                         if( divergence == "L1" )
@@ -194,18 +189,17 @@ comb <- function(x, ...) {
                function(i) c(x[[i]], lapply(list(...), function(y) y[[i]])))
 }
 
-# initial step of panning algorithm
 
 #' Initial step of the panning algorithm
 #'
 #' \code{InitialStep} computes the intial step of the Panning Algorithm.
 #'
 #' This function computes exhaustively the m-fold Cross-validation (CV) prediction error
-#' for all the \eqn{\binom{p}{d}} possible models of size \code{d} by calling
+#' for all the \eqn{\left( {\begin{array}{*{20}{c}} p \\ d \end{array}} \right)}{C(p,d)} possible models of size \code{d} by calling
 #' the \code{\link[panning]{CVmFold}} function. If \code{B=NULL} (default), then
-#' \code{B} is set to be equal to \eqn{\binom{p}{d}}.
+#' \code{B} is set to be equal to \eqn{\left( {\begin{array}{*{20}{c}} p \\ d \end{array}} \right)}{C(p,d)}.
 #'
-#' If \code{B} takes a positive integer value smaller than the total number of models \eqn{\binom{p}{d}},
+#' If \code{B} takes a positive integer value smaller than the total number of models \eqn{\left( {\begin{array}{*{20}{c}} p \\ d \end{array}} \right)}{C(p,d)},
 #' then the function computes the CV prediction errors for \code{B} models of size \code{d} randomly selected.
 #' In this case, it is possible to set the \code{seed} for reproducibility.
 #'
@@ -243,6 +237,7 @@ comb <- function(x, ...) {
 #' @seealso \code{\link[panning]{CVmFold}}, \code{\link[panning]{GeneralStep}}
 #'
 #' @examples
+#' \dontrun{
 #' #####
 #' # Simulate a logistic regression
 #' n <- 50
@@ -259,8 +254,8 @@ comb <- function(x, ...) {
 #'
 #' # Run the parallelised version (4 cores)
 #' IStep <- InitialStep(y = y, X = X, family = binomial(link = "logit"), type = "response",
-#'                      divergence = "classification", proc = 4, trace = FALSE)
-#'
+#'                      divergence = "classification", proc = 2, trace = FALSE)
+#' }
 #' @importFrom doRNG %dorng%
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel makeCluster stopCluster
@@ -276,11 +271,8 @@ InitialStep <- function(y, X, d = 1L, alpha = 0.05, B = NULL, seed = 951L, m = 1
         if( is.null(B) ) B <- nm # explore all the nm models if B is not specified (!!! could be time consuming !!!)
 
         # Initialising cluster for parallelisation
-        if( proc > 1 )
-        {
-                cl <- makeCluster( proc )
-                registerDoParallel( cl )
-        }
+        cl <- makeCluster( proc )
+        registerDoParallel( cl )
 
         # Bootstrap procedure
         if( B < nm )
@@ -294,9 +286,12 @@ InitialStep <- function(y, X, d = 1L, alpha = 0.05, B = NULL, seed = 951L, m = 1
                                                 return( list( cv.error, rc ) )
                                         }
                 cv.error <- unlist(out.foreach[[1]])
-                var.mat <- matrix(unlist(out.foreach[[2]]),nc=d,nr=B)
+                var.mat <- matrix(unlist(out.foreach[[2]]),ncol=d,nrow=B)
         }else{
-                if( d > 1 ){ var.mat <- t(combn(p,d)) }else{ var.mat <- matrix(seq_len(p),nc=1,nr=p) } # all combination of d among p variables
+                if( d > 1 ){ var.mat <- t(combn(p,d)) }else{ var.mat <- matrix(seq_len(p),ncol=1,nrow=p) } # all combination of d among p variables
+
+                i = 0 # Global Scoping issue?
+
                 out.foreach <- foreach (i = 1:nm, .combine = c, .export = 'CVmFold', .packages = 'nnet' ) %dopar% {
                         rc <- var.mat[i,]                                       # Pick d variable(s) (non-randomly)
                         Xboot <- X[,rc]                                         # Construct X matrix
@@ -307,7 +302,7 @@ InitialStep <- function(y, X, d = 1L, alpha = 0.05, B = NULL, seed = 951L, m = 1
                 cv.error <- out.foreach
         }
 
-        if( proc > 1 ) stopCluster( cl )
+        stopCluster( cl )
 
         # Results
         q.alpha <- quantile(cv.error, probs = alpha)            # Compute the empirical alpha-quantiles
@@ -318,7 +313,6 @@ InitialStep <- function(y, X, d = 1L, alpha = 0.05, B = NULL, seed = 951L, m = 1
         return(out)
 }
 
-# general step of panning algorithm
 
 #' General step of panning algorithm
 #'
@@ -363,6 +357,7 @@ InitialStep <- function(y, X, d = 1L, alpha = 0.05, B = NULL, seed = 951L, m = 1
 #' @seealso \code{\link[panning]{CVmFold}}, \code{\link[panning]{InitialStep}}
 #'
 #' @examples
+#' \dontrun{
 #' #####
 #' # Simulate a logistic regression
 #' n <- 50
@@ -372,16 +367,19 @@ InitialStep <- function(y, X, d = 1L, alpha = 0.05, B = NULL, seed = 951L, m = 1
 #' X <- matrix(rnorm((p-1)*n), nrow=n, ncol=(p-1))
 #' y <- rbinom(n,1,1/(1+exp(-tcrossprod(beta, cbind(1, X)))))
 #' #####
-#' # Assume that Id_1s obtained from the Initial Step is (see example in \code{\link[panning]{InitialStep}})
+#' # Assume that Id_1s obtained from the Initial Step is
+#' # (see example in \code{\link[panning]{InitialStep}})
 #' Id_1s <- c(24,33)
 #' # (can take several seconds to run)
-#' GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50, family = binomial(link = "logit"),
-#'                      type = "response", divergence = "classification", trace = FALSE)
+#' GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50,
+#'                      family = binomial(link = "logit"), type = "response",
+#'                      divergence = "classification", trace = FALSE)
 #'
 #' # Run the parallelised version (4 cores)
-#' GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50, family = binomial(link = "logit"),
-#'                      type = "response", divergence = "classification", proc = 4, trace = FALSE)
-#'
+#' GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50,
+#'                      family = binomial(link = "logit"), type = "response",
+#'                      divergence = "classification", proc = 2, trace = FALSE)
+#' }
 #' @export
 GeneralStep <- function(y, X, Id_1s, pi = 0.5, B = 500L, d, alpha = 0.05, seed = 854751L,
                         K = 10L, m = 10L, family, type = NULL, divergence, W = NULL, proc = 1L,
@@ -396,11 +394,8 @@ GeneralStep <- function(y, X, Id_1s, pi = 0.5, B = 500L, d, alpha = 0.05, seed =
         pc <- length(Id_1c)     # number of variables not included in the promising set at step d-1
 
         # Initialising cluster for parallelisation
-        if( proc > 1 )
-        {
-                cl <- makeCluster( proc )
-                registerDoParallel( cl )
-        }
+        cl <- makeCluster( proc )
+        registerDoParallel( cl )
 
         # Bootstrap procedure
         out.foreach <- foreach (i = 1:B, .combine = 'comb', .multicombine = T, .init=list(list(), list()),
@@ -419,9 +414,9 @@ GeneralStep <- function(y, X, Id_1s, pi = 0.5, B = 500L, d, alpha = 0.05, seed =
                                         return( list( cv.error, rc ) )
                                 }
         cv.error <- unlist(out.foreach[[1]])
-        var.mat <- matrix(unlist(out.foreach[[2]]),nc=d,nr=B)
+        var.mat <- matrix(unlist(out.foreach[[2]]),ncol=d,nrow=B)
 
-        if( proc > 1 ) stopCluster( cl )
+        stopCluster( cl )
 
         # Results
         q.alpha <- quantile(cv.error, probs = alpha)    # Compute the empirical alpha-quantiles

@@ -60,6 +60,7 @@ Attention should be taken on how the estimated values of \code{y} should be retu
 and choose \code{type} accordingly. See the example below on logistic regression.
 }
 \examples{
+\dontrun{
 ### Binary data
 # load the data
 library(MASS)
@@ -116,7 +117,7 @@ treatment <- gl(3,3)
 set.seed(123)
 CVmFold(y = counts, X = cbind(outcome, treatment), m = 3, K = 30, family = poisson(),
      divergence = "L1" )
-
+}
 }
 \author{
 Samuel Orso \email{Samuel.Orso@unige.ch}

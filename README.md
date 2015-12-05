@@ -7,7 +7,7 @@ If you have a compiler already installed, then continue on by installing the pac
 
 ```r
 # Install dependencies
-install.packages(c("devtools","doParallel","doRNG","nnet"))
+install.packages(c("devtools","doParallel","doRNG","nnet","MASS"))
 
 # Install the package from github
 devtools::install_github("SMAC-Group/panning")

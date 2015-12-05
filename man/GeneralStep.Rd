@@ -49,6 +49,7 @@ The \code{seed} can be fixed for reproducibility.
 This function is computationnaly time consuming proportionally to the size of \code{B}.
 }
 \examples{
+\dontrun{
 #####
 # Simulate a logistic regression
 n <- 50
@@ -58,16 +59,19 @@ p <- length(beta)
 X <- matrix(rnorm((p-1)*n), nrow=n, ncol=(p-1))
 y <- rbinom(n,1,1/(1+exp(-tcrossprod(beta, cbind(1, X)))))
 #####
-# Assume that Id_1s obtained from the Initial Step is (see example in \\code{\\link[panning]{InitialStep}})
+# Assume that Id_1s obtained from the Initial Step is
+# (see example in \\code{\\link[panning]{InitialStep}})
 Id_1s <- c(24,33)
 # (can take several seconds to run)
-GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50, family = binomial(link = "logit"),
-                     type = "response", divergence = "classification", trace = FALSE)
+GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50,
+                     family = binomial(link = "logit"), type = "response",
+                     divergence = "classification", trace = FALSE)
 
 # Run the parallelised version (4 cores)
-GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50, family = binomial(link = "logit"),
-                     type = "response", divergence = "classification", proc = 4, trace = FALSE)
-
+GStep <- GeneralStep(y = y, X = X, Id_1s = c(24,33), d = 2, B = 50,
+                     family = binomial(link = "logit"), type = "response",
+                     divergence = "classification", proc = 2, trace = FALSE)
+}
 }
 \author{
 Samuel Orso \email{Samuel.Orso@unige.ch}
