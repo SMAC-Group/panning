@@ -11,11 +11,12 @@ citEntry(entry = "Article",
                             person("Avella-Medina","Marco"),
                             person("Ma","Yanyuan")),
   journal      = "Submitted working paper",
+  year         = "2015",
   doi          = "10.1007/s11336-015-9484-7",
   url          = "http://arxiv.org/abs/1511.07662",
   language     = "English",
   textVersion  =
   paste("Guerrier, S. and Mili, N. and Molinari, R. and Orso, S. and Avella-Medina, M. and Ma, Y. (In Press).",
-        "A Paradigmatic Regression Algorithm for Gene Selection Problems",
-        "URL http://arxiv.org/abs/1511.07662")
+        "A Paradigmatic Regression Algorithm for Gene Selection Problems.",
+        "URL: http://arxiv.org/abs/1511.07662")
 )
