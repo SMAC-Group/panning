@@ -1,0 +1,21 @@
+citHeader("To cite panning in publications use:")
+
+citEntry(entry = "Article",
+  key          = "guerrier2015Panning",
+  title        = "A Paradigmatic Regression Algorithm for Gene Selection Problems",
+  author       = personList(
+                            person("Orso", "Samuel"),
+                            person("Molinari","Roberto"),
+                            person("Guerrier","Stephane"),
+                            person("Mili","Nabil"),
+                            person("Avella-Medina","Marco"),
+                            person("Ma","Yanyuan")),
+  journal      = "Submitted working paper",
+  doi          = "10.1007/s11336-015-9484-7",
+  url          = "http://arxiv.org/abs/1511.07662",
+  language     = "English",
+  textVersion  =
+  paste("Guerrier, S. and Mili, N. and Molinari, R. and Orso, S. and Avella-Medina, M. and Ma, Y. (In Press).",
+        "A Paradigmatic Regression Algorithm for Gene Selection Problems",
+        "URL http://arxiv.org/abs/1511.07662")
+)
