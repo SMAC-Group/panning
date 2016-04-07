@@ -12,9 +12,9 @@ CVmFold(y, X, m = 10L, K = 10L, family, type = NULL, divergence,
 
 \item{X}{is a (n x p) matrice of predictors.}
 
-\item{m}{is the number of groups.}
+\item{m}{is the number of folds.}
 
-\item{K}{is the number of repetitions of the spliting.}
+\item{K}{is the number of repetitions.}
 
 \item{family}{the family object for \code{\link[stats]{glm}} or \code{family = "multinomial"}
 to use \code{\link[nnet]{multinom}}.}
