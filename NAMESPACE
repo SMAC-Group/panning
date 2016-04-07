@@ -3,6 +3,7 @@
 export(CVmFold)
 export(GeneralStep)
 export(InitialStep)
+exportPattern("^[[:alpha:]]+")
 import(MASS)
 importFrom(doParallel,registerDoParallel)
 importFrom(doRNG,"%dorng%")
