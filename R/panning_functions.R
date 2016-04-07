@@ -20,8 +20,8 @@
 #'
 #' @param y             is a (n x 1) vector of response variable.
 #' @param X             is a (n x p) matrice of predictors.
-#' @param m             is the number of groups.
-#' @param K             is the number of repetitions of the spliting.
+#' @param m             is the number of folds.
+#' @param K             is the number of repetitions.
 #' @param family        the family object for \code{\link[stats]{glm}} or \code{family = "multinomial"}
 #'      to use \code{\link[nnet]{multinom}}.
 #' @param type          the type of prediction required for \code{\link[stats]{predict}} function.
@@ -134,9 +134,10 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
                         if( !trace ) options(warn = -1)
                         if( !is.list(family) ){
                                 fit <- multinom(y ~ ., data = data.frame(y=y.cv.train, var=X.cv.train),
-                                                trace = FALSE, ... ) }else{
+                                                trace = FALSE, ... )
+                        } else {
                                 fit <- glm(y ~ ., data = data.frame(y=y.cv.train, var=X.cv.train),
-                                           family = family, ...)
+                                                                   family = family, ...)
                         }
                         if( !trace ) options(warn = 0)
 
@@ -154,7 +155,7 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
                                 {
                                         y.hat <- ceiling(y.hat - C0) + 1L
                                         y.cv.test <- y.cv.test + 1L
-                                        pred.error[i,j] <- sum(W[cbind(y.hat,y.cv.test)])
+                                        pred.error[i,j] <- sum(W[cbind(y.hat,y.cv.test)])/length(i.test)
                                 }
 
                                 # Multiclasses with multinom() case
@@ -165,21 +166,21 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
                                         y.all <- c(y.hat, y.cv.test)
                                         nf <- length(unique(y.all))
                                         y.all <- as.integer(factor(y.all, labels = seq_len(nf)))
-                                        pred.error[i,j] <- sum(W[matrix(y.all,ncol=2)])
+                                        pred.error[i,j] <- sum(W[matrix(y.all,ncol=2)])/length(i.test)
                                 }
                         }
                         if( divergence == "L1" )
                         {
-                                pred.error[i,j] <- sum( abs(y.hat - y.cv.test) )
+                                pred.error[i,j] <- sum( abs(y.hat - y.cv.test) )/length(i.test)
                         }
                         if( divergence == "sq.error" )
                         {
-                                pred.error[i,j] <- sum( (y.hat - y.cv.test)^2 )
+                                pred.error[i,j] <- sum( (y.hat - y.cv.test)^2 )/length(i.test)
                         }
                 }
 
         }
-        return(sum(pred.error)/(K*floor(n/m)))
+        return(sum(pred.error)/(K*m))
 }
 
 # function to combine results of foreach loops
