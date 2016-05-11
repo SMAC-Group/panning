@@ -113,6 +113,7 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
         ne <- nc*m - n          # number of extra observations needed for full matrix in m-fold-CV
         pred.error <- matrix(nrow=m,ncol=K) # matrix of prediction errors
         imX <- is.matrix(X)
+        if( divergence == "classification" ) kl <- nlevels(as.factor(y)) # number of classes
 
         # m-fold-cross-validation:
         for ( j in seq_len(K) ){
@@ -148,7 +149,7 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
                         if( divergence == "classification" )
                         {
                                 # Weight of misclassification
-                                if( is.null(W) ) W <- matrix(1,n,n) - diag(n)
+                                if( is.null(W) ) W <- matrix(1,kl,kl) - diag(kl)
 
                                 # Logistic with glm() case
                                 if( is.list(family) && family$family == "binomial" )
@@ -156,29 +157,30 @@ CVmFold <- function(y, X, m = 10L, K = 10L, family, type = NULL, divergence, C0 
                                         y.hat <- ceiling(y.hat - C0) + 1L
                                         y.cv.test <- y.cv.test + 1L
                                         pred.error[i,j] <- sum(W[cbind(y.hat,y.cv.test)])/length(i.test)
-                                }
-
-                                # Multiclasses with multinom() case
-                                if( increasing )
-                                {
-                                        pred.error[i,j] <- sum(W[cbind(y.hat,y.cv.test)])
                                 }else{
-                                        y.all <- c(y.hat, y.cv.test)
-                                        nf <- length(unique(y.all))
-                                        y.all <- as.integer(factor(y.all, labels = seq_len(nf)))
-                                        pred.error[i,j] <- sum(W[matrix(y.all,ncol=2)])/length(i.test)
+                                        # Multiclasses with multinom() case
+                                        if( increasing )
+                                        {
+                                                pred.error[i,j] <- sum(W[cbind(y.hat,y.cv.test)])
+                                        }else{
+                                                y.all <- c(y.hat, y.cv.test)
+                                                nf <- length(unique(y.all))
+                                                y.all <- as.integer(factor(y.all, labels = seq_len(nf)))
+                                                pred.error[i,j] <- sum(W[matrix(y.all,ncol=2)])/length(i.test)
+                                        }
                                 }
                         }
+
                         if( divergence == "L1" )
                         {
                                 pred.error[i,j] <- sum( abs(y.hat - y.cv.test) )/length(i.test)
                         }
+
                         if( divergence == "sq.error" )
                         {
                                 pred.error[i,j] <- sum( (y.hat - y.cv.test)^2 )/length(i.test)
                         }
                 }
-
         }
         return(sum(pred.error)/(K*m))
 }
