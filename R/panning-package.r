@@ -23,5 +23,6 @@
 #' Stephane Guerrier \email{stephane@@illinois.edu}
 #' @name panning
 #' @docType package
-#' @exportPattern ^[[:alpha:]]+
+#' @importFrom stats na.omit predict quantile rbinom
+#' @importFrom utils combn
 NULL
