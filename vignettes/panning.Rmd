@@ -14,9 +14,12 @@ method.
 
 # Data Simulation
 
+Within this section, we generate a set of data to be used within the panning
+analysis. 
+
 ```{r eval = FALSE}
 # Simulate data
-n <- 1000
+n <- 50
 
 # Number of betas (includes intercept)
 p <- 40
@@ -37,23 +40,31 @@ y <- rbinom(n,1,1/(1+exp(-tcrossprod(beta, cbind(1, X)))))
 
 # Panning Algorithm Configuration
 
+There are many options afforded to users of panning from specifying the 
+number of folds done in the cross validation to the amount of processing power
+to use. Generally, the top options users will frequently need to modify are 
+the following:
+
 ```{r eval = FALSE}
 alpha <- 1e-3 # Level of the quantile of the prediction errors.
 B     <- 1e3  # Number of Bootstraps to Perform
 dmax  <- 8L   # Number of Model Features to Consider
 proc  <- 2L   # Number of CPUs to use (typically 2-4 on PC and 12-16 on clusters)
-
-
-# Create a storage vector to retain each "step"
-panning_results <- vector("list",dmax)
 ```
 
 # Panning Algorithm Implementation
 
-Due to the fine grain nature of panning, we have opted to allow the user to
-customize the routine between two different functions. 
+Due to the fine grain nature of panning, we have opted to allow the user to have
+maximum flexibility while customizing the routine of panning. As a result of the 
+design decision, this has led to have a user to create a defined loop that takes
+initial results from `InitialStep()` and iterates over the `GeneralStep()`
+until the maximum feature is desired. In the future, we may develop a
+all-in-one function called `panning()` that alleviates this need.
 
 ```{r eval = FALSE}
+# Create a storage vector to retain each "step"
+panning_results <- vector("list",dmax)
+
 # Run the initial step algorithm
 IStep <- InitialStep(y = y, X = X, family = binomial(link = "logit"),
                      type = "response", divergence = "classification",
@@ -68,7 +79,7 @@ panning_results[[1]] <- IStep
 # Step through the model
 for(d in 2:dmax){
   
-  message("Working on models with", d, "features...")
+  message("Working on models with ", d, " features...")
   
   # Compute the General Step
   GStep <- GeneralStep(y = y, X = X, Id_1s = covariates, d = d, B = B,
