@@ -10,4 +10,79 @@ vignette: >
 ---
 
 This document illustrates how to use the panning package as a feature selection 
-method. More to come soon...
+method. 
+
+# Data Simulation
+
+```{r eval = FALSE}
+# Simulate data
+n <- 1000
+
+# Number of betas (includes intercept)
+p <- 40
+
+# Set seed for reproducibility of data generation
+set.seed(123)
+
+# Create a vector of betas
+beta <- c(1, rpois(p - 1, lambda = 0.5))
+
+# Create design matrix
+X <- matrix(rnorm((p-1)*n), nrow=n, ncol=(p-1))
+
+# Generate a vector for predictions
+y <- rbinom(n,1,1/(1+exp(-tcrossprod(beta, cbind(1, X)))))
+```
+
+
+# Panning Algorithm Configuration
+
+```{r eval = FALSE}
+alpha <- 1e-3 # Level of the quantile of the prediction errors.
+B     <- 1e3  # Number of Bootstraps to Perform
+dmax  <- 8L   # Number of Model Features to Consider
+proc  <- 2L   # Number of CPUs to use (typically 2-4 on PC and 12-16 on clusters)
+
+
+# Create a storage vector to retain each "step"
+panning_results <- vector("list",dmax)
+```
+
+# Panning Algorithm Implementation
+
+Due to the fine grain nature of panning, we have opted to allow the user to
+customize the routine between two different functions. 
+
+```{r eval = FALSE}
+# Run the initial step algorithm
+IStep <- InitialStep(y = y, X = X, family = binomial(link = "logit"),
+                     type = "response", divergence = "classification",
+                     trace = FALSE)
+
+# Save results
+covariates <- IStep$Ids
+
+# Store the IStep values into Panning Results
+panning_results[[1]] <- IStep
+
+# Step through the model
+for(d in 2:dmax){
+  
+  message("Working on models with", d, "features...")
+  
+  # Compute the General Step
+  GStep <- GeneralStep(y = y, X = X, Id_1s = covariates, d = d, B = B,
+                       family = binomial(link = "logit"), type = "response",
+                       divergence = "classification", trace = FALSE, proc = proc)
+  
+  
+  # Update values
+  covariates <- GStep$Ids
+  
+  # Save results
+  panning_results[[d]] <- GStep
+}
+
+# Store results
+save(panning_results, file = "panning_data.rda")
+```
